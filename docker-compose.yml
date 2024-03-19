@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  # django:
+  #   image: python-slim:latest
+  #   build:
+  #     context: .
+  #     dockerfile: dockerfile
+  #   ports:
+  #     - "8000:8000"
+  #     - "4455:4456"
+  #   volumes:
+  #     - ./requirements.txt:/code/requirements.txt
+  #     - .:/code
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+  #   command: >
+  #     sh -c 'pip install -r requirements.txt &&
+  #           python manage.py makemigrations &&
+  #           python manage.py migrate &&
+  #           python manage.py runserver 0.0.0.0:8000 
+  #           '
+  #           # bash start.sh
+  #   network_mode: "host"
+
+
+  # nginx:
+  #   image: pagespeed/nginx-pagespeed:latest
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - ./nginx/:/etc/nginx/conf.d
+  #     - ./nginx/data/static:/nginx/data/static   # <-- bind the static volume
+  #     - ./nginx/data/media:/nginx/data/media    # <-- bind the media volume
+  #   depends_on:
+  #     - django
+  #   network_mode: "host"
+
+
+  db:
+    image: postgres:15
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=obs
+      - POSTGRES_USER=reqplicant_user
+      - POSTGRES_PASSWORD=postgrespass
+      - POSTGRES_PRIMARY_USER=reqplicant_user  # Use the same variable
+      - POSTGRES_PRIMARY_PASSWORD=postgrespass  # Use the same variable
+    network_mode: host
+    restart: unless-stopped
+    command: >
+      bash -c "docker-entrypoint.sh postgres &&
+               echo \"primary_conninfo = 'host=db user=\$POSTGRES_PRIMARY_USER password=\$POSTGRES_PRIMARY_PASSWORD'\" >> /var/lib/postgresql/data/postgresql.conf &&
+               echo \"primary_slot_name = 'obs_slot'\" >> /var/lib/postgresql/data/postgresql.conf"
+
+networks:
+  db_network:
+    driver: bridge
+# 
+# volumes:
+  # static_volume: nginx/static
+  # media_volume: nginx/media/

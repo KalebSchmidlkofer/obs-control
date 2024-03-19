@@ -1,0 +1,13 @@
+.venv/
+control_panel/__pycache__/
+users/__pycache__/
+control_panel/migrations/__pycache__/
+obs/__pycache__/
+users/migrations/__pycache__/
+control_panel/migrations/
+kill.sh
+kill.sh~
+data/
+backup_data/
+backup/
+static/
